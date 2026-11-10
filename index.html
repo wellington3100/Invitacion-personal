@@ -342,7 +342,9 @@ h2{font-size:clamp(1.9rem,6.5vw,2.4rem);margin-bottom:8px}
       body: JSON.stringify({
         access_key: '8a554221-1d2d-446e-bf69-475702f75f54',
         subject: '💖 ¡Dijo que SÍ!',
-        message: `Aceptó la cita 💕\nFecha: ${fechaTexto}\nHora: ${hora}`
+        Fecha: fechaTexto,
+        Hora: hora,
+        message: `Aceptó la cita 💕 | Fecha: ${fechaTexto} | Hora: ${hora}`
       })
     }).catch(() => {});
   });
