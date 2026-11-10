@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Una invitación para ti 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rosa:#ffb6c9; --rosa-claro:#ffe3ec; --rosa-fuerte:#ff8fab;
+  --rojo:#e85d75; --blanco:#fffafc; --texto:#8a3b55;
+  --script:'Dancing Script','Brush Script MT',cursive;
+  --sans:'Quicksand','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--sans);color:var(--texto);
+  background:linear-gradient(135deg,#ffe3ec 0%,#ffd1df 45%,#ffc2d6 100%);
+  background-size:200% 200%;animation:fondo 14s ease-in-out infinite;
+}
+@keyframes fondo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* Corazones de fondo */
+#hearts{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.heart{position:absolute;bottom:-60px;opacity:0;animation:subir linear infinite;will-change:transform}
+@keyframes subir{
+  0%{transform:translateY(0) translateX(0) rotate(-10deg);opacity:0}
+  10%{opacity:.75}
+  50%{transform:translateY(-55vh) translateX(25px) rotate(10deg)}
+  90%{opacity:.6}
+  100%{transform:translateY(-115vh) translateX(-20px) rotate(-8deg);opacity:0}
+}
+
+/* Escenario y pantallas */
+.stage{position:fixed;inset:0;display:grid;place-items:center;padding:16px;z-index:1}
+.screen{
+  grid-area:1/1;width:min(92vw,460px);max-height:calc(100dvh - 32px);overflow-y:auto;
+  background:rgba(255,250,252,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:2px solid rgba(255,255,255,.9);border-radius:32px;
+  box-shadow:0 20px 60px rgba(232,93,117,.25),0 0 0 8px rgba(255,255,255,.35);
+  padding:34px 26px;text-align:center;
+  opacity:0;visibility:hidden;transform:translateY(24px) scale(.96);
+  transition:opacity .6s ease,transform .6s ease,visibility 0s .6s;
+}
+.screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .6s ease,transform .6s ease}
+h1,h2{font-family:var(--script);color:var(--rojo);line-height:1.15}
+h1{font-size:clamp(2rem,7vw,2.6rem);margin-bottom:12px}
+h2{font-size:clamp(1.9rem,6.5vw,2.4rem);margin-bottom:8px}
+.pregunta{font-size:clamp(1.3rem,5vw,1.6rem);font-weight:700;margin-bottom:26px}
+.sub{font-size:1.05rem;margin-bottom:18px}
+.latido{display:inline-block;animation:latido 1.4s ease-in-out infinite}
+@keyframes latido{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.15)}}
+
+/* Botones */
+.fila{display:flex;gap:16px;justify-content:center;align-items:center;min-height:56px}
+.btn{
+  font-family:var(--sans);font-weight:700;font-size:1.1rem;letter-spacing:.5px;
+  border:none;border-radius:999px;padding:14px 30px;cursor:pointer;
+  transition:transform .25s ease,box-shadow .25s ease,background .25s ease;
+}
+.btn-si{background:linear-gradient(135deg,#ffb6c9,#ff8fab);color:#fff;box-shadow:0 8px 20px rgba(255,143,171,.55)}
+.btn-si:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 12px 28px rgba(255,143,171,.7)}
+.btn-si:active{transform:scale(.97)}
+.btn-no{background:linear-gradient(135deg,#ffd1dc,#ffb6c9);color:#fff;box-shadow:0 8px 20px rgba(255,182,201,.5)}
+#noBtn{
+  position:fixed;left:0;top:0;z-index:50;touch-action:manipulation;
+  transition:left .38s cubic-bezier(.34,1.56,.64,1),top .38s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+}
+#noBtn.oculto{opacity:0;pointer-events:none}
+#noSlot{visibility:hidden}
+
+/* Calendario */
+.cal{background:#fff;border-radius:22px;padding:14px;box-shadow:inset 0 0 0 2px var(--rosa-claro);margin-bottom:16px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-mes{font-family:var(--script);font-size:1.7rem;color:var(--rojo);text-transform:capitalize}
+.nav{width:38px;height:38px;border:none;border-radius:50%;background:var(--rosa-claro);color:var(--rojo);font-size:1.2rem;font-weight:700;cursor:pointer;transition:transform .2s,background .2s}
+.nav:hover:not(:disabled){background:var(--rosa);transform:scale(1.12)}
+.nav:disabled{opacity:.35;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:.78rem;font-weight:700;color:var(--rosa-fuerte);padding:4px 0}
+.dia{
+  position:relative;aspect-ratio:1;border:none;background:transparent;border-radius:50%;
+  font-family:var(--sans);font-weight:600;font-size:.95rem;color:var(--texto);cursor:pointer;
+  display:grid;place-items:center;transition:transform .2s,background .2s;
+}
+.dia.libre{background:var(--rosa-claro)}
+.dia.libre:hover{background:var(--rosa);color:#fff;transform:scale(1.15)}
+.dia.pasado{color:#d9b8c3;cursor:not-allowed;text-decoration:line-through;opacity:.6}
+.dia.hoy{box-shadow:inset 0 0 0 2px var(--rosa-fuerte)}
+.dia.sel{background:transparent!important;color:#fff;font-weight:700;z-index:1}
+.dia.sel::before{
+  content:"💗";position:absolute;inset:-4px;font-size:2.1rem;line-height:1;display:grid;place-items:center;
+  z-index:-1;animation:pop .5s cubic-bezier(.34,1.8,.64,1);filter:drop-shadow(0 3px 6px rgba(232,93,117,.5));
+}
+.dia.sel::before{background:none}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}100%{transform:scale(1) rotate(0)}}
+
+/* Horas */
+#horas{display:none}
+#horas.visible{display:block;animation:aparece .5s ease}
+@keyframes aparece{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.horas-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 16px}
+.hora{
+  font-family:var(--sans);font-weight:700;font-size:.95rem;border:2px solid var(--rosa);background:#fff;color:var(--texto);
+  border-radius:999px;padding:9px 16px;cursor:pointer;transition:all .2s;
+}
+.hora:hover{background:var(--rosa-claro);transform:translateY(-2px)}
+.hora.sel{background:linear-gradient(135deg,#ff8fab,#e85d75);color:#fff;border-color:transparent;transform:scale(1.08);box-shadow:0 6px 16px rgba(232,93,117,.45)}
+#confirmar{display:none;margin:0 auto}
+#confirmar.visible{display:block;animation:aparece .5s ease}
+
+/* Final */
+.resumen{background:#fff;border-radius:20px;padding:16px;margin:16px 0;box-shadow:inset 0 0 0 2px var(--rosa-claro);font-size:1.1rem;font-weight:600}
+.resumen div+div{margin-top:8px}
+.resumen b{color:var(--rojo);text-transform:capitalize}
+.mensaje{font-size:1.1rem;margin-bottom:20px;line-height:1.5}
+#confeti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:100}
+@media (max-width:380px){.screen{padding:26px 16px}.btn{padding:12px 22px}}
+@media (prefers-reduced-motion:reduce){.heart,.latido{animation:none}}
+</style>
+</head>
+<body>
+<div id="hearts"></div>
+<canvas id="confeti"></canvas>
+
+<main class="stage">
+  <!-- Pantalla 1 -->
+  <section class="screen active" id="s1">
+    <h1>💕 Tengo una pregunta para ti...</h1>
+    <p class="pregunta">¿Quieres salir conmigo? <span class="latido">💘</span></p>
+    <div class="fila">
+      <button class="btn btn-si" id="siBtn">💗 SÍ</button>
+      <span class="btn btn-no" id="noSlot" aria-hidden="true">💔 NO</span>
+    </div>
+  </section>
+
+  <!-- Pantalla 2 -->
+  <section class="screen" id="s2">
+    <h2>¡Sabía que dirías que sí! 💖</h2>
+    <p class="sub">Ahora solo falta elegir cuándo nos vemos...</p>
+    <div class="cal">
+      <div class="cal-head">
+        <button class="nav" id="prev" aria-label="Mes anterior">‹</button>
+        <div class="cal-mes" id="mesTitulo"></div>
+        <button class="nav" id="next" aria-label="Mes siguiente">›</button>
+      </div>
+      <div class="grid" id="calGrid"></div>
+    </div>
+    <div id="horas">
+      <p class="sub" style="margin-bottom:0">¿A qué hora te gustaría? 🕰️</p>
+      <div class="horas-grid" id="horasGrid"></div>
+    </div>
+    <button class="btn btn-si" id="confirmar">Confirmar cita 💌</button>
+  </section>
+
+  <!-- Pantalla 3 -->
+  <section class="screen" id="s3">
+    <h2>¡Nuestra cita está confirmada! 💗</h2>
+    <div class="resumen">
+      <div>📅 <b id="resFecha"></b></div>
+      <div>🕰️ <b id="resHora"></b></div>
+    </div>
+    <p class="mensaje">Ya tengo una cita con la persona más bonita. Ahora solo queda esperar ese día. 💕</p>
+    <button class="btn btn-si" id="volver">Volver al inicio 🏠</button>
+  </section>
+</main>
+
+<button class="btn btn-no" id="noBtn">💔 NO</button>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const screens = [$('s1'), $('s2'), $('s3')];
+  const show = n => screens.forEach((s, i) => s.classList.toggle('active', i === n));
+
+  /* ---------- Corazones flotantes ---------- */
+  const hearts = $('hearts');
+  const emojis = ['💗','💕','💖','🩷','❤️','💞'];
+  for (let i = 0; i < 22; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + '%';
+    h.style.fontSize = (14 + Math.random() * 26) + 'px';
+    h.style.animationDuration = (12 + Math.random() * 14) + 's';
+    h.style.animationDelay = (-Math.random() * 20) + 's';
+    hearts.appendChild(h);
+  }
+
+  /* ---------- Botón NO ---------- */
+  const noBtn = $('noBtn'), noSlot = $('noSlot'), siBtn = $('siBtn');
+  const M = 12; // margen de seguridad con los bordes
+  let moved = false, cooldown = 0;
+
+  const vw = () => document.documentElement.clientWidth;
+  const vh = () => window.innerHeight;
+
+  function placeAtSlot() {
+    const r = noSlot.getBoundingClientRect();
+    noBtn.style.left = r.left + 'px';
+    noBtn.style.top = r.top + 'px';
+  }
+
+  function overlaps(a, b, pad) {
+    return a.left < b.right + pad && a.right > b.left - pad &&
+           a.top < b.bottom + pad && a.bottom > b.top - pad;
+  }
+
+  function moveNo() {
+    const now = Date.now();
+    if (now - cooldown < 120) return;
+    cooldown = now;
+    moved = true;
+    const bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
+    const maxX = vw() - bw - M, maxY = vh() - bh - M;
+    const si = siBtn.getBoundingClientRect();
+    const cur = noBtn.getBoundingClientRect();
+    let x, y, ok = false;
+    for (let i = 0; i < 80 && !ok; i++) {
+      x = M + Math.random() * Math.max(0, maxX - M);
+      y = M + Math.random() * Math.max(0, maxY - M);
+      const box = {left: x, top: y, right: x + bw, bottom: y + bh};
+      const far = Math.hypot(x - cur.left, y - cur.top) > 120;
+      ok = !overlaps(box, si, 24) && far;
+    }
+    if (!ok) { // respaldo: esquina opuesta al SÍ
+      x = si.left > vw() / 2 ? M : maxX;
+      y = si.top > vh() / 2 ? M : maxY;
+    }
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+
+  const huir = e => { e.preventDefault(); e.stopPropagation(); moveNo(); };
+  ['mouseenter', 'pointerdown', 'touchstart', 'click', 'focus'].forEach(ev =>
+    noBtn.addEventListener(ev, e => { huir(e); if (ev === 'focus') noBtn.blur(); }, {passive: false}));
+
+  // Se aleja cuando el cursor se acerca
+  document.addEventListener('mousemove', e => {
+    if (!screens[0].classList.contains('active')) return;
+    const r = noBtn.getBoundingClientRect();
+    const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+    if (d < 95) moveNo();
+  });
+
+  window.addEventListener('resize', () => {
+    if (!moved) { placeAtSlot(); return; }
+    const r = noBtn.getBoundingClientRect();
+    noBtn.style.left = Math.min(Math.max(M, r.left), vw() - r.width - M) + 'px';
+    noBtn.style.top = Math.min(Math.max(M, r.top), vh() - r.height - M) + 'px';
+  });
+
+  function resetNo() {
+    moved = false;
+    noBtn.classList.remove('oculto');
+    placeAtSlot();
+  }
+
+  /* ---------- Pantalla SÍ ---------- */
+  siBtn.addEventListener('click', () => {
+    noBtn.classList.add('oculto');
+    show(1);
+    burst(60);
+  });
+
+  /* ---------- Calendario ---------- */
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  let vista = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  let fecha = null, hora = null;
+  const dows = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const horarios = ['12:00 PM','2:00 PM','4:00 PM','6:00 PM','8:00 PM'];
+  const key = d => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+
+  function renderCal() {
+    const grid = $('calGrid');
+    grid.innerHTML = '';
+    dows.forEach(d => { const e = document.createElement('div'); e.className = 'dow'; e.textContent = d; grid.appendChild(e); });
+    const y = vista.getFullYear(), m = vista.getMonth();
+    $('mesTitulo').textContent = vista.toLocaleDateString('es-MX', {month: 'long', year: 'numeric'});
+    const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+    const total = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < offset; i++) grid.appendChild(document.createElement('div'));
+    for (let n = 1; n <= total; n++) {
+      const d = new Date(y, m, n);
+      const b = document.createElement('button');
+      b.textContent = n;
+      b.className = 'dia';
+      if (d < hoy) { b.classList.add('pasado'); b.disabled = true; }
+      else {
+        b.classList.add('libre');
+        if (d.getTime() === hoy.getTime()) b.classList.add('hoy');
+        b.addEventListener('click', () => elegirFecha(d));
+      }
+      if (fecha && key(fecha) === key(d)) b.classList.add('sel');
+      grid.appendChild(b);
+    }
+    $('prev').disabled = (y === hoy.getFullYear() && m === hoy.getMonth());
+  }
+
+  function elegirFecha(d) {
+    fecha = d;
+    renderCal();
+    $('horas').classList.add('visible');
+    actualizarConfirmar();
+  }
+
+  $('prev').addEventListener('click', () => { vista = new Date(vista.getFullYear(), vista.getMonth() - 1, 1); renderCal(); });
+  $('next').addEventListener('click', () => { vista = new Date(vista.getFullYear(), vista.getMonth() + 1, 1); renderCal(); });
+
+  /* ---------- Horas ---------- */
+  horarios.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'hora';
+    b.textContent = t;
+    b.addEventListener('click', () => {
+      hora = t;
+      document.querySelectorAll('.hora').forEach(x => x.classList.toggle('sel', x === b));
+      actualizarConfirmar();
+    });
+    $('horasGrid').appendChild(b);
+  });
+
+  function actualizarConfirmar() {
+    $('confirmar').classList.toggle('visible', !!(fecha && hora));
+  }
+
+  /* ---------- Confirmación ---------- */
+  $('confirmar').addEventListener('click', () => {
+    $('resFecha').textContent = fecha.toLocaleDateString('es-MX', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
+    $('resHora').textContent = hora;
+    show(2);
+    burst(160, true);
+  });
+
+  $('volver').addEventListener('click', () => {
+    fecha = null; hora = null;
+    vista = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.querySelectorAll('.hora').forEach(x => x.classList.remove('sel'));
+    $('horas').classList.remove('visible');
+    $('confirmar').classList.remove('visible');
+    renderCal();
+    show(0);
+    setTimeout(resetNo, 650);
+  });
+
+  /* ---------- Confeti ---------- */
+  const cv = $('confeti'), ctx = cv.getContext('2d');
+  let parts = [], raf = null;
+  const colores = ['#ffb6c9','#ff8fab','#e85d75','#ffe3ec','#ffffff','#ffc2d6'];
+  const size = () => { cv.width = innerWidth; cv.height = innerHeight; };
+  size(); addEventListener('resize', size);
+
+  function burst(n, grande) {
+    for (let i = 0; i < n; i++) {
+      parts.push({
+        x: innerWidth / 2 + (Math.random() - .5) * 200,
+        y: innerHeight * (grande ? .35 : .5),
+        vx: (Math.random() - .5) * (grande ? 16 : 11),
+        vy: -Math.random() * (grande ? 15 : 10) - 3,
+        r: 5 + Math.random() * 7,
+        c: colores[Math.floor(Math.random() * colores.length)],
+        heart: Math.random() < .45,
+        rot: Math.random() * 6, vr: (Math.random() - .5) * .3,
+        life: 0
+      });
+    }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter(p => p.y < cv.height + 30 && p.life < 260);
+    parts.forEach(p => {
+      p.vy += .22; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, 1 - p.life / 260);
+      ctx.fillStyle = p.c;
+      if (p.heart) {
+        const s = p.r;
+        ctx.beginPath();
+        ctx.moveTo(0, s * .35);
+        ctx.bezierCurveTo(-s, -s * .5, -s * .5, -s * 1.1, 0, -s * .4);
+        ctx.bezierCurveTo(s * .5, -s * 1.1, s, -s * .5, 0, s * .35);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
+      }
+      ctx.restore();
+    });
+    raf = parts.length ? requestAnimationFrame(tick) : null;
+  }
+
+  /* ---------- Inicio ---------- */
+  renderCal();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(placeAtSlot);
+  placeAtSlot();
+})();
+</script>
+</body>
+</html>
